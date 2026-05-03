@@ -10,7 +10,7 @@ BOT1_TOKEN = '8726393630:AAEvQvpppyIPBpSbRIDOhgH0kCg6TRiAnrI'
 BOT2_TOKEN = '8730248424:AAG57Xs8zws_Kc50UXEf4UuLONeEcNi5cAQ'
 
 # Apne Private Channel ki ID yahan dalein (e.g., -100123456789)
-DB_CHANNEL_ID = -6132381350 
+DB_CHANNEL_ID = -1003974946855 
 
 # Apne Bots ke Usernames (Bina @ ke)
 BOT1_USERNAME = 'melonhub_bot'
