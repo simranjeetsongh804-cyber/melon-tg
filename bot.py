@@ -98,31 +98,28 @@ def handle_bot1_start(message):
 
     else:
 
-        # ---- CASE 2: AGAR USER DIRECT /START DABATA HAI ----
-
+    # ---- CASE 2: AGAR USER DIRECT /START DABATA HAI ----
         random_photo_id = random.choice(WELCOME_PHOTOS)
-
-        welcome_msg = f"Hi {user_name}\n\nWelcome to @melonxhub"
-
         
-
+        # User ki ID profile link ke liye
+        user_id = message.from_user.id
+        
+        # Ekdam perfect layout bina brackets ke aur chipki hui lines ke sath
+        welcome_msg = f"<b>Hi</b> <a href='tg://user?id={user_id}'>Unknown</a>\n<b>Welcome to</b> <a href='https://t.me/melonxhub'>@melonxhub</a>"
+        
         try:
-
             bot1.copy_message(
-
                 chat_id=message.chat.id, 
-
                 from_chat_id=DB_CHANNEL_ID, 
-
                 message_id=random_photo_id, 
-
-                caption=welcome_msg
-
+                caption=welcome_msg,
+                parse_mode='HTML'
             )
-
         except Exception as e:
-
-            bot1.send_message(message.chat.id, welcome_msg)
+            try:
+                bot1.send_message(message.chat.id, welcome_msg, parse_mode='HTML')
+            except:
+                pass
 # -------- BOT 2 LOGIC (File Sender) --------
 @bot2.message_handler(commands=['start'])
 def handle_bot2_start(message):
