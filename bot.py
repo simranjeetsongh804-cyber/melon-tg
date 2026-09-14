@@ -6,8 +6,8 @@ import time
 
 # ================= CONFIGURATION =================
 # BotFather se mile tokens yahan dalein
-BOT1_TOKEN = '8726393630:AAEvQvpppyIPBpSbRIDOhgH0kCg6TRiAnrI' 
-BOT2_TOKEN = '8730248424:AAG57Xs8zws_Kc50UXEf4UuLONeEcNi5cAQ'
+BOT1_TOKEN = '8726393630:AAGO1FL5MbbwxJM16t50E_01Oe1izU9GtdU' 
+BOT2_TOKEN = '8730248424:AAElBBR_tUU447o4ShzPM4L8YFi9rBOZGvo'
 
 # Apne Private Channel ki ID yahan dalein (e.g., -100123456789)
 DB_CHANNEL_ID = -1003974946855 
