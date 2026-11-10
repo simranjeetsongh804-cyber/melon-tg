@@ -9,8 +9,8 @@ import os
 # ================= ULTRA SECURITY CONFIGURATION =================
 # Tokens ab code mein nahi, balki Render ke Environment Variables se aayenge!
 # Isse koi aapka token chori nahi kar payega.
-BOT1_TOKEN = os.getenv('8726393630:AAGO1FL5MbbwxJM16t50E_01Oe1izU9GtdU')
-BOT2_TOKEN = os.getenv('8730248424:AAElBBR_tUU447o4ShzPM4L8YFi9rBOZGvo')
+BOT1_TOKEN = os.getenv('BOT1_TOKEN')
+BOT2_TOKEN = os.getenv('BOT2_TOKEN')
 
 # Apne Private Channel ki ID yahan dalein
 DB_CHANNEL_ID = -1003974946855 
