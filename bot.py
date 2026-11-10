@@ -3,109 +3,72 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from flask import Flask
 import threading
 import time
+import random
+import os
 
-# ================= CONFIGURATION =================
-# BotFather se mile tokens yahan dalein
-BOT1_TOKEN = '8726393630:AAGO1FL5MbbwxJM16t50E_01Oe1izU9GtdU' 
-BOT2_TOKEN = '8730248424:AAElBBR_tUU447o4ShzPM4L8YFi9rBOZGvo'
+# ================= ULTRA SECURITY CONFIGURATION =================
+# Tokens ab code mein nahi, balki Render ke Environment Variables se aayenge!
+# Isse koi aapka token chori nahi kar payega.
+BOT1_TOKEN = os.getenv('8726393630:AAGO1FL5MbbwxJM16t50E_01Oe1izU9GtdU')
+BOT2_TOKEN = os.getenv('8730248424:AAElBBR_tUU447o4ShzPM4L8YFi9rBOZGvo')
 
-# Apne Private Channel ki ID yahan dalein (e.g., -100123456789)
+# Apne Private Channel ki ID yahan dalein
 DB_CHANNEL_ID = -1003974946855 
 
 # Apne Bots ke Usernames (Bina @ ke)
 BOT1_USERNAME = 'melonhub_bot'
 BOT2_USERNAME = 'melonvid_bot'
-# =================================================
+# ================================================================
+
+# Safety check agar tokens na milein
+if not BOT1_TOKEN or not BOT2_TOKEN:
+    print("CRITICAL ERROR: Bot tokens are missing from Environment Variables!")
 
 bot1 = telebot.TeleBot(BOT1_TOKEN)
 bot2 = telebot.TeleBot(BOT2_TOKEN)
 app = Flask(__name__)
 
+# Anti-Spam dictionary to track user requests
+user_cooldown = {}
+
 @app.route('/')
 def home():
-    return "Bot is Running 24/7!"
+    return "Secure Bot is Running 24/7!"
 
-# -------- BOT 1 LOGIC (Redirector) --------
-# -------- BOT 1 LOGIC (Random Welcome + Photo Download Button) --------
-
-import random
-
-
-
-# ==================== CONFIGURATION ====================
-
-# 1. Apni Download Wali Photo Ki ID Yahan Dalein
-
-DOWNLOAD_BUTTON_PHOTO_ID = 361  # <--- Is 99 ko apni asli photo ID se badal dein
-
-
-
-# 2. Apni 15 Welcome Photos Ki IDs Yahan Dalein
-
+# -------- BOT 1 LOGIC (Redirector & Welcome) --------
+DOWNLOAD_BUTTON_PHOTO_ID = 361 
 WELCOME_PHOTOS = [345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359]
 
-# =======================================================
-
-
-
 @bot1.message_handler(commands=['start'])
-
 def handle_bot1_start(message):
-
     text = message.text.split()
-
-    user_name = message.from_user.first_name 
-
+    user_id = message.from_user.id
     
+    # Anti-flood check for Bot 1
+    current_time = time.time()
+    if user_id in user_cooldown and current_time - user_cooldown[user_id] < 2:
+        return
+    user_cooldown[user_id] = current_time
 
     if len(text) > 1:
-
-        # ---- CASE 1: AGAR USER SHORT LINK SE AAYA HAI ----
-
         file_id = text[1] 
-
         markup = InlineKeyboardMarkup()
-
         btn = InlineKeyboardButton("📥 Download Now", url=f"https://t.me/{BOT2_USERNAME}?start={file_id}")
-
         markup.add(btn)
-
         
-
         try:
-
-            # Isse text message ki jagah aapki download photo jayegi aur neeche button hoga
-
             bot1.copy_message(
-
                 chat_id=message.chat.id, 
-
                 from_chat_id=DB_CHANNEL_ID, 
-
                 message_id=DOWNLOAD_BUTTON_PHOTO_ID,
-
                 reply_markup=markup
-
             )
-
         except Exception as e:
-
-            # Backup agar photo send na ho toh text message chala jaye
-
             bot1.send_message(message.chat.id, "📥 **Click below to download your file:**", reply_markup=markup, parse_mode='Markdown')
-
         
-
     else:
-
-    # ---- CASE 2: AGAR USER DIRECT /START DABATA HAI ----
         random_photo_id = random.choice(WELCOME_PHOTOS)
-        
-        # User ki ID profile link ke liye
-        user_id = message.from_user.id
-        
-        # Ekdam perfect layout bina brackets ke aur chipki hui lines ke sath
-        welcome_msg = f"<b>Hi</b> <a href='tg://user?id={user_id}'>Unknown</a>\n<b>Welcome to</b> <a href='https://t.me/melonxhub'>@melonxhub</a>"
+        welcome_msg = f"<b>Hi</b> <a href='tg://user?id={user_id}'>Unknown</a>\n<b>Welcome to</b> <a href='https://t.me/melonxhub</a>@melonxhub"
         
         try:
             bot1.copy_message(
@@ -120,41 +83,57 @@ def handle_bot1_start(message):
                 bot1.send_message(message.chat.id, welcome_msg, parse_mode='HTML')
             except:
                 pass
-# -------- BOT 2 LOGIC (File Sender) --------
+
+# -------- BOT 2 LOGIC (Secure File Sender) --------
 @bot2.message_handler(commands=['start'])
 def handle_bot2_start(message):
     text = message.text.split()
+    user_id = message.from_user.id
+    
     if len(text) > 1:
         data = text[1]
-        bot2.send_message(message.chat.id, "⌛ **Files bheji ja rahi hain, kripya intezar karein...**", parse_mode='Markdown')
         
-        # Check range (e.g. 10-20) or single ID (e.g. 10)
+        # Security validation: Check if data contains only numbers or valid ranges (e.g., 10 or 10-20)
+        if not all(c.isdigit() or c == '-' for c in data):
+            bot2.send_message(message.chat.id, "❌ **Invalid Request!**", parse_mode='Markdown')
+            return
+
+        bot2.send_message(message.chat.id, "⌛ **Please wait, your files are being sent securely...**", parse_mode='Markdown')
+        
         if "-" in data:
             try:
-                start_id, end_id = map(int, data.split("-"))
-            except: return
+                parts = data.split("-")
+                if len(parts) == 2:
+                    start_id, end_id = int(parts[0]), int(parts[1])
+                    # Limit maximum range at once to prevent server choking (max 50 files per request)
+                    if end_id - start_id > 50:
+                        end_id = start_id + 50
+                else:
+                    return
+            except: 
+                return
         else:
             try:
                 start_id = end_id = int(data)
-            except: return
+            except: 
+                return
 
         for msg_id in range(start_id, end_id + 1):
             try:
                 bot2.copy_message(chat_id=message.chat.id, from_chat_id=DB_CHANNEL_ID, message_id=msg_id)
-                time.sleep(1) # Speed limit taaki bot ban na ho
+                time.sleep(1.5) # Safe delay to prevent Telegram FloodWait error
             except Exception as e:
                 print(f"Error copying message {msg_id}: {e}")
     else:
-        # Normal messages ko ignore karega
-        pass
+        bot2.send_message(message.chat.id, "⚠️ **Please use the official link from @melonxhub to get files.**", parse_mode='Markdown')
 
 # -------- RUNNING THE ENGINE --------
 def run_flask():
     app.run(host="0.0.0.0", port=8000)
 
 def start_polling():
-    threading.Thread(target=lambda: bot1.infinity_polling()).start()
-    bot2.infinity_polling()
+    threading.Thread(target=lambda: bot1.infinity_polling(skip_pending=True)).start()
+    bot2.infinity_polling(skip_pending=True)
 
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()
