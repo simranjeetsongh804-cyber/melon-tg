@@ -16,8 +16,8 @@ BOT2_TOKEN = os.getenv('BOT2_TOKEN')
 DB_CHANNEL_ID = -1003974946855 
 
 # Apne Bots ke Usernames (Bina @ ke)
-BOT1_USERNAME = 'melonhub_bot'
-BOT2_USERNAME = 'melonvid_bot'
+BOT1_USERNAME = 'Melonclick_bot'
+BOT2_USERNAME = 'Melonshare_bot'
 # ================================================================
 
 # Safety check agar tokens na milein
